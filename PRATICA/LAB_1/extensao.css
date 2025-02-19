@@ -1,0 +1,30 @@
+table {
+    width: 50%;
+    border-collapse: collapse;
+    margin: 20px auto;
+    font-family: Arial, sans-serif;
+    text-align: center;
+}
+
+td {
+    border: 2px solid #3498db;
+    padding: 15px;
+    font-size: 18px;
+    background-color: #ecf0f1;
+    color: #2c3e50;
+}
+
+body {
+    background-color: white; /*Cor de fundo da página*/
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+h1{
+    text-align: center;
+}
+
+a:hover {
+    color: red;
+}
