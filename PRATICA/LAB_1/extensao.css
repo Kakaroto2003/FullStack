@@ -15,7 +15,7 @@ td {
 }
 
 body {
-    background-color: white; /*Cor de fundo da página*/
+    background-color: white;
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
@@ -23,8 +23,93 @@ body {
 
 h1{
     text-align: center;
+    color: black;
 }
 
 a:hover {
     color: red;
+}
+
+iframe {
+    display: block;
+    margin: 20px auto;
+}
+
+.lista-atividades {
+    display: flex; /* Ativa o Flexbox, que ajuda a organizar os itens de forma flexível */
+    justify-content: center; 
+}
+
+.lista-atividades ul {
+    list-style: none; /* Remove os marcadores (bolinhas) padrão dos itens de lista */
+    padding: 0; 
+    display: flex;
+    gap: 20px; 
+}
+
+.lista-atividades li {
+    display: flex;
+    align-items: center; 
+    gap: 10px; 
+    background: #f4f4f4; 
+    padding: 10px 20px; /* Espaçamento interno de 10px nas laterais e 20px nas extremidades */
+    border-radius: 10px; 
+    box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.1); /* Adiciona uma sombra sutil ao redor de cada item para dar profundidade */
+    transition: transform 0.3s ease-in-out; /* Define uma transição suave de 0.3 segundos para o efeito de escala */
+    cursor: pointer; /* Alteração do cursor para indicar que o item é clicável */
+    font-size: 18px; 
+    font-weight: bold;
+}
+
+.lista-atividades li:hover {
+    transform: scale(1.1); /* Aumenta o tamanho do item em 10% quando o mouse passa sobre ele */
+    background: #ddd; /* Altera o fundo para um tom mais escuro quando o item é destacado */
+}
+
+.lista-atividades img {
+    width: 32px; 
+    height: 32px; 
+}
+
+.ferramentas {
+    display: flex; 
+    justify-content: center; /* Centraliza os itens horizontalmente */
+    align-items: center; /* Alinha os itens verticalmente */
+    gap: 20px; 
+    margin-top: 30px;
+}
+
+.ferramentas a {
+    font-size: 18px; 
+    color: #007BFF;
+    text-decoration: none; /* Remove o sublinhado padrão dos links */
+    font-weight: bold; 
+    padding: 10px 20px; /* Adiciona espaçamento interno ao redor do texto, para deixar o link mais espaçoso */
+    border-radius: 10px; 
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1); /* Adiciona uma sombra sutil para dar profundidade */
+    transition: background-color 0.3s ease, color 0.3s ease; /* Adiciona uma transição suave para a cor de fundo e a cor do texto */
+}
+
+.ferramentas a:hover {
+    background-color: #f0f0f0; /* Altera o fundo do link quando o mouse passa sobre ele */
+    color: #0056b3; /* Escurece a cor do texto para indicar que o link foi destacado */
+}
+
+.ferramentas a:active {
+    transform: scale(0.98); /* Aplica um efeito de "pressionar" no link, reduzindo um pouco o tamanho */
+    background-color: #e0e0e0; /* Muda o fundo para um tom mais claro, como se estivesse sendo pressionado */
+}
+
+.ferramentas a:visited {
+    color: #6c757d; /* Altera a cor do texto para um cinza mais suave depois que o link foi visitado */
+}
+
+#Foto_Perfil {
+  width: 300px; 
+  height: 300px;
+  border-radius: 50%; /* Torna a imagem circular */
+  object-fit: cover; /* Mantém a proporção correta */
+  
+  display: block; /* Permite usar margin auto */
+  margin: 0 auto; /* Centraliza horizontalmente */
 }
