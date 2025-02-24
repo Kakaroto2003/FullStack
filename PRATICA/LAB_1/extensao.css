@@ -113,3 +113,8 @@ iframe {
   display: block; /* Permite usar margin auto */
   margin: 0 auto; /* Centraliza horizontalmente */
 }
+
+#destacar{
+    color: #0056b3;
+    font-weight: bold;
+}
