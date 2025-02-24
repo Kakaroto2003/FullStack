@@ -101,7 +101,7 @@ iframe {
 }
 
 .ferramentas a:visited {
-    color: #6c757d; /* Altera a cor do texto para um cinza mais suave depois que o link foi visitado */
+    color: #6c757d; /* Altera a cor do texto depois que o link foi visitado */
 }
 
 #Foto_Perfil {
