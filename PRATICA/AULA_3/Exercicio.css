@@ -1,0 +1,26 @@
+#Contato{
+    display: inline;
+    background-color: green;
+    position: fixed;
+    bottom: 0px;
+    right: 0px;
+}
+
+#Destacar{
+    color: blue;
+    font-weight: bold;
+}
+
+.Links {
+    margin: 10px;
+    padding: 10px; /* Pressionar F12 para abrir DevTools na pagina */
+    border-radius: 10px;
+    box-shadow: 10px 10px blue;
+    font-weight: bold;
+    border-style: solid;
+
+}
+
+a:hover{
+    color: blue;
+}
