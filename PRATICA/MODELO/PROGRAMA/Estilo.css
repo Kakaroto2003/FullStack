@@ -1,0 +1,62 @@
+body{
+    background-color: lightgray;
+    text-align: center;
+}
+
+.Texto{
+    color: indigo;
+}
+
+#Livros {
+    display: flex;
+    justify-content: center; 
+    align-items: center; 
+    gap: 50px; 
+    height: 70vh; 
+}
+
+#iframes{
+    display: flex;
+    justify-content: center; 
+    align-items: center; 
+    gap: 50px; 
+    height: 70vh;    
+}
+
+table{
+    display: flex;
+    justify-content: center;
+    border-color: red;
+    border: red;
+    border-style: dashed;
+}
+
+th, td{
+    color: red;
+}
+
+.container {
+    text-align: center;
+}
+
+.links {
+    background-color: yellow;
+    display: inline-block;
+    padding: 10px;
+    margin: 10px auto;
+    text-align: left;
+    font-weight: bold;
+}
+
+.mensagem {
+    background-color: bisque;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content:space-between
+}
+
+a{
+    color: red;
+
+}

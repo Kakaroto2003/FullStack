@@ -1,0 +1,15 @@
+.Flex-container{
+    height: 600px;
+    display: flex;
+    flex-direction: row;
+    background-color: aquamarine;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-content: center;
+}
+
+.Flex-container div{
+    background-color: burlywood;
+    padding: 10px;
+    margin: 10px;
+}
