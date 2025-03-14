@@ -1,0 +1,47 @@
+body {
+    text-align: center;
+    font-family: Arial, sans-serif;
+}
+
+.container_1 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.text-box {
+    background-color: purple;
+    color: white;
+    font-family: serif;
+    font-size: 45px;
+    font-weight: normal;
+    text-align: start;
+    height: 200px;
+    width: 200px;
+}
+
+.Top_1 {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+}
+
+.A_1, .A_2, .links {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 10px 0;
+}
+
+.solo {
+    margin-top: 20px;
+}
+
+.double {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
+}
