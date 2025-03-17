@@ -48,15 +48,47 @@ th, td{
     font-weight: bold;
 }
 
+.IMG {
+    justify-content: space-between;
+}
+
+#mensagem {
+    display: flex;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+}
+
 .mensagem {
     background-color: bisque;
-    padding: 20px;
     display: flex;
-    align-items: center;
-    justify-content:space-between
+    text-align: center;
+    justify-content: space-between;
 }
 
 a{
     color: red;
 
+}
+
+.IMGtop {
+    justify-content: space-between;
+}
+
+#mensage {
+    display: flex;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    text-size-adjust: 18px;
+    color: green;
+}
+
+.mensage {
+    background-color: bisque;
+    display: flex;
+    text-align: center;
+    justify-content: space-between;
+    border: 3px solid; 
+    border-color: blue;
 }
