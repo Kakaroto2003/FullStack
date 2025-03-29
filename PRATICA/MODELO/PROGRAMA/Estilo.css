@@ -5,6 +5,8 @@ body{
 }
 
 .Texto{
+    display: flex;
+    flex-wrap: wrap;
     color: indigo;
     display: flex;
     flex-wrap: wrap;
@@ -13,6 +15,7 @@ body{
 #Livros {
     display: flex;
     justify-content: center; 
+    flex-wrap: wrap;
     align-items: center; 
     gap: 50px; 
     height: 70vh; 
@@ -21,6 +24,7 @@ body{
 #iframes{
     display: flex;
     justify-content: center; 
+    flex-wrap: wrap;
     align-items: center; 
     gap: 50px; 
     height: 70vh;    
@@ -89,6 +93,7 @@ a{
 }
 
 .IMGtop {
+    display: flex;
     justify-content: space-between;
 }
 
@@ -113,4 +118,10 @@ a{
     display: flex;
     justify-content: space-around;
     background-color: rgb(140, 203, 224);
+}
+
+.ajuste{
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
 }
