@@ -1,14 +1,10 @@
 body {
-  background-color: #ffffff;
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
   margin: 0;
-}
-
-.container {
-  text-align: center;
+  background-color: #ffffff;
 }
 
 canvas {
