@@ -1,5 +1,23 @@
 {
   "dependencies": {
-    "colors": "^1.4.0"
-  }
+    "colors": "^1.4.0",
+    "express": "^5.1.0"
+  },
+  "name": "servidor",
+  "version": "1.0.0",
+  "description": "Meu primeiro Servidor Web  - Aula 9 - dia 14/04/2025",
+  "main": "Servidor.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Kakaroto2003/FullStack.git"
+  },
+  "author": "Caio Silva",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Kakaroto2003/FullStack/issues"
+  },
+  "homepage": "https://github.com/Kakaroto2003/FullStack#readme"
 }
