@@ -1,3 +1,15 @@
 body{
     background-color: rgb(255, 209, 82);
 }
+
+#container{
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.item{
+    background-color: bisque;
+    margin: 10px;
+    padding: auto;
+    display: inline;
+}
