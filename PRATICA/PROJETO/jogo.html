@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jogo: One More Minute Until the End of the World</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <nav>
+    <ul>
+      <li><a href="index.html">Início</a></li>
+      <li><a href="dev.html">Desenvolvedores</a></li>
+      <li><a href="jogo.html" class="active">Jogo</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <h1>One More Minute Until the End of the World</h1>
+
+    <div class="game-container">
+      <canvas id="gameCanvas" width="800" height="550"></canvas>
+      <button id="startButton">Start!</button>
+    </div>
+
+    <h2>Controles:</h2>
+    <ul>
+      <li>← / → ou A/D: mover</li>
+      <li>↑ ou W: pular</li>
+      <li>Espaço: atirar</li>
+      <li>A cada minuto: power-up + nova onda de inimigos</li>
+    </ul>
+  </main>
+
+  <footer>© 2025 – Projeto acadêmico FEI | One More Minute Until the End of the World</footer>
+
+  <script src="jogo.js"></script>
+</body>
+</html>

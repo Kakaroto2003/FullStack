@@ -1,0 +1,187 @@
+/* Importa fonte retrô 8-bit */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+:root {
+  --bg-color: #111;
+  --primary: #00ffcc;
+  --secondary: #ff0099; /* rosa */
+  --text-color: #f0f0f0;
+  --border-color: #00ffcc;
+  --nav-bg: #222;
+  --hover-bg: #333;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Press Start 2P', monospace;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  padding-top: 60px;
+  font-size: 10px;
+}
+
+/* Navegação */
+nav {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  background-color: var(--nav-bg);
+  border-bottom: 3px solid var(--primary);
+  z-index: 10;
+}
+
+nav ul {
+  display: flex;
+  justify-content: center;
+  list-style: none;
+  padding: 10px;
+}
+
+nav li {
+  margin: 0 15px;
+}
+
+nav a {
+  color: var(--primary);
+  text-decoration: none;
+  padding: 8px 12px;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+nav a:hover,
+nav a.active {
+  background-color: var(--hover-bg);
+  border: 2px solid var(--primary);
+  color: var(--secondary);
+}
+
+/* Área principal */
+main {
+  max-width: 900px;
+  margin: auto;
+  padding: 30px;
+  text-align: center;
+}
+
+/* Títulos e textos */
+h1 {
+  color: var(--primary);
+  margin-bottom: 30px;
+}
+
+h2 {
+  color: var(--secondary);
+  margin: 20px 0;
+}
+
+ul {
+  list-style-type: square;
+  text-align: left;
+  margin: 20px auto;
+  max-width: 500px;
+}
+
+li {
+  margin-bottom: 10px;
+}
+
+p {
+  margin: 15px 0;
+  line-height: 1.6;
+}
+
+/* Container do jogo */
+.game-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 20px 0;
+}
+
+/* Canvas do jogo */
+canvas {
+  display: block;
+  border: 3px solid var(--border-color);
+  background-color: #000;
+  max-width: 100%;
+  height: auto;
+}
+
+/* Botão start */
+button#startButton {
+  background-color: var(--primary);
+  color: #000;
+  padding: 10px 30px;
+  font-size: 10px;
+  font-family: 'Press Start 2P', monospace;
+  border: 2px solid var(--border-color);
+  cursor: pointer;
+  transition: 0.3s;
+  margin-top: 10px;
+}
+
+button#startButton:hover {
+  background-color: var(--secondary);
+  color: #fff;
+}
+
+/* Estilo para perfis de desenvolvedor */
+.dev-profile {
+  display: flex;
+  align-items: center;
+  background-color: #1e1e1e;
+  border: 2px solid var(--border-color);
+  padding: 20px;
+  margin: 20px auto;
+  max-width: 800px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px var(--primary);
+}
+
+.dev-profile img {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border: 3px solid var(--primary);
+  border-radius: 8px;
+  margin-right: 20px;
+}
+
+.dev-info h2 {
+  margin-bottom: 10px;
+  color: var(--secondary); /* agora em rosa */
+  font-size: 1.2em;
+}
+
+.dev-info ul {
+  list-style: none;
+  padding-left: 0;
+  font-size: 0.9em;
+}
+
+.dev-info li {
+  margin-bottom: 5px;
+}
+
+.project-note {
+  text-align: center;
+  margin-top: 40px;
+  color: var(--text-color);
+  font-size: 0.8em;
+}
+
+/* Rodapé */
+footer {
+  margin-top: 50px;
+  padding: 20px;
+  text-align: center;
+  font-size: 0.7em;
+  color: #888;
+}
+
