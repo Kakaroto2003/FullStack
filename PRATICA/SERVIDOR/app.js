@@ -3,7 +3,7 @@ const path = require('path');
 const bodyParser = require('body-parser');
 
 const app = express();
-const PORT = 80; // Porta 80 como solicitado
+const PORT = 80; 
 
 // Configurações
 app.use(express.static('public'));
@@ -17,11 +17,11 @@ app.get('/', (req, res) => {
 });
 
 app.get('/cadastra', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'LAB', 'LAB_8 GET_POST_TEMPLATE', 'Cadastro.html'));
+  res.sendFile(path.join(__dirname, 'PUBLIC', 'LAB', 'LAB_8 GET_POST_TEMPLATE', 'cadastro.html'));
 });
 
 app.get('/login', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'LAB', 'LAB_8 GET_POST_TEMPLATE', 'Login.html'));
+  res.sendFile(path.join(__dirname, 'PUBLIC', 'LAB', 'LAB_8 GET_POST_TEMPLATE', 'login.html'));
 });
 
 app.post('/resposta', (req, res) => {
