@@ -1,57 +1,57 @@
-const enemyImage = new Image();
-enemyImage.src = 'assets/enemy.png';
-
-
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-let player, bullets = [], enemies = [], enemyBullets = [];
+let player, bullets = [], enemies = [], explosions = [], groundExplosions = [];
+let score = 0, lives = 3;
 let gameStarted = false;
-let powerUpInterval;
-let startTime;
+let keys = {};
+let enemyInterval;
 
-const gameDuration = 7 * 60 * 1000; // 7 minutos
+// Imagens
+const backgroundImage = new Image();
+backgroundImage.src = 'background.png';
+
+const playerImage = new Image();
+playerImage.src = 'tanque.png';
+
+const enemyImage = new Image();
+enemyImage.src = 'inimigo.png';
+
+const bulletImage = new Image();
+bulletImage.src = 'tiro.png';
+
+const explosionImage = new Image();
+explosionImage.src = 'explosao.png';
+
+const groundExplosionImage = new Image();
+groundExplosionImage.src = 'explosao2.png';
 
 class Player {
   constructor() {
-    this.x = canvas.width / 2;
-    this.y = canvas.height - 60;
-    this.width = 30;
-    this.height = 40;
-    this.speed = 4;
-    this.color = '#00ffcc';
-    this.hp = 100;
-    this.maxHp = 100;
+    this.width = 125;
+    this.height = 125;
+    this.x = canvas.width / 2 - this.width / 2;
+    this.y = canvas.height - this.height - 20;
+    this.speed = 7;
     this.canShoot = true;
   }
 
-  move(dir) {
-    if (dir === 'left') this.x -= this.speed;
-    if (dir === 'right') this.x += this.speed;
+  move(direction) {
+    if (direction === 'left') this.x -= this.speed;
+    if (direction === 'right') this.x += this.speed;
     this.x = Math.max(0, Math.min(canvas.width - this.width, this.x));
   }
 
   shoot() {
     if (this.canShoot) {
-      bullets.push(new Bullet(this.x + this.width / 2 - 2, this.y));
+      bullets.push(new Bullet(this.x + this.width / 2 - 15, this.y));
       this.canShoot = false;
-      setTimeout(() => this.canShoot = true, 300);
+      setTimeout(() => this.canShoot = true, 200);
     }
   }
 
-  takeDamage(amount) {
-    this.hp -= amount;
-    if (this.hp < 0) this.hp = 0;
-  }
-
   draw() {
-    // Corpo
-    ctx.fillStyle = this.color;
-    ctx.fillRect(this.x, this.y, this.width, this.height);
-
-    // Cabeça
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(this.x + 5, this.y - 10, 20, 10);
+    ctx.drawImage(playerImage, this.x, this.y, this.width, this.height);
   }
 }
 
@@ -59,8 +59,9 @@ class Bullet {
   constructor(x, y) {
     this.x = x;
     this.y = y;
-    this.size = 4;
-    this.speed = 8;
+    this.width = 30;
+    this.height = 70;
+    this.speed = 12;
   }
 
   update() {
@@ -68,46 +69,17 @@ class Bullet {
   }
 
   draw() {
-    // Rastro do tiro
-    const gradient = ctx.createLinearGradient(this.x, this.y, this.x, this.y + 10);
-    gradient.addColorStop(0, '#ffcc00');
-    gradient.addColorStop(1, '#ff0000');
-    ctx.fillStyle = gradient;
-    ctx.fillRect(this.x, this.y, this.size, 10);
+    ctx.drawImage(bulletImage, this.x, this.y, this.width, this.height);
   }
 }
 
 class Enemy {
   constructor() {
-    this.x = Math.random() * (canvas.width - 30);
-    this.y = -30;
-    this.width = 30;
-    this.height = 30;
-    this.speed = 1.5 + Math.random() * 1;
-    this.shootInterval = setInterval(() => this.shoot(), 2000 + Math.random() * 1500);
-  }
-
-  update() {
-    this.y += this.speed;
-  }
-
-  shoot() {
-    if (this.y > 0 && gameStarted) {
-      enemyBullets.push(new EnemyBullet(this.x + this.width / 2, this.y + this.height));
-    }
-  }
-
-  draw() { ctx.drawImage(enemyImage, this.x, this.y, this.width, this.height);
-    ctx.fill();
-  }
-}
-
-class EnemyBullet {
-  constructor(x, y) {
-    this.x = x;
-    this.y = y;
-    this.size = 5;
-    this.speed = 3.5;
+    this.width = 80;
+    this.height = 80;
+    this.x = Math.random() * (canvas.width - this.width);
+    this.y = -this.height;
+    this.speed = 1 + Math.random() * 1.5;
   }
 
   update() {
@@ -115,10 +87,49 @@ class EnemyBullet {
   }
 
   draw() {
-    ctx.fillStyle = '#ff3333';
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.drawImage(enemyImage, this.x, this.y, this.width, this.height);
+  }
+}
+
+class Explosion {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+    this.size = 100;
+    this.life = 50;
+  }
+
+  update() {
+    this.life--;
+  }
+
+  draw() {
+    ctx.drawImage(explosionImage, this.x, this.y, this.size, this.size);
+  }
+
+  isAlive() {
+    return this.life > 0;
+  }
+}
+
+class GroundExplosion {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+    this.size = 150;
+    this.life = 75;
+  }
+
+  update() {
+    this.life--;
+  }
+
+  draw() {
+    ctx.drawImage(groundExplosionImage, this.x, this.y, this.size, this.size);
+  }
+
+  isAlive() {
+    return this.life > 0;
   }
 }
 
@@ -129,63 +140,87 @@ function spawnEnemyWave(count = 4) {
 }
 
 function drawHUD() {
-  ctx.fillStyle = '#333';
-  ctx.fillRect(20, 20, 100, 10);
-  ctx.fillStyle = '#00ff00';
-  ctx.fillRect(20, 20, player.hp, 10);
-  ctx.strokeStyle = '#fff';
-  ctx.strokeRect(20, 20, 100, 10);
-
-  const timeLeft = Math.max(0, gameDuration - (Date.now() - startTime));
-  const seconds = Math.floor(timeLeft / 1000);
   ctx.fillStyle = '#fff';
-  ctx.font = '10px Arial';
-  ctx.fillText('Tempo: ' + seconds + 's', canvas.width - 120, 30);
+  ctx.font = '16px "Press Start 2P", Arial';
+  ctx.textAlign = 'left';
+  ctx.fillText(`Score: ${score}`, 20, 30);
+  ctx.textAlign = 'right';
+  ctx.fillText(`Vidas: ${lives}`, canvas.width - 20, 30);
+  ctx.textAlign = 'start';
+}
+
+function drawGameOver() {
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = '#ff4444';
+  ctx.font = '32px "Press Start 2P", Arial';
+  ctx.textAlign = 'center';
+  ctx.fillText('GAME OVER', canvas.width / 2, canvas.height / 2 - 20);
+  ctx.fillStyle = '#fff';
+  ctx.font = '16px "Press Start 2P", Arial';
+  ctx.fillText(`Pontuação: ${score}`, canvas.width / 2, canvas.height / 2 + 10);
+    ctx.fillText('Pressione START ou [ESPAÇO] para jogar!', canvas.width / 2, canvas.height / 2 + 40);
+  ctx.textAlign = 'start';
 }
 
 function update() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  if (!gameStarted) return;
+
+  // Movimento
+  if (keys['arrowleft'] || keys['a']) player.move('left');
+  if (keys['arrowright'] || keys['d']) player.move('right');
+
+  // Fundo
+  ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
+
   player.draw();
 
-  bullets.forEach((b, i) => {
+  bullets.forEach((b) => {
     b.update();
     b.draw();
-    if (b.y < 0) bullets.splice(i, 1);
   });
 
   enemies.forEach((e, i) => {
     e.update();
     e.draw();
-    if (e.y > canvas.height) enemies.splice(i, 1);
+
+    // Quando inimigo atinge o chão
+    if (e.y + e.height > canvas.height - 20) {
+      groundExplosions.push(new GroundExplosion(e.x + e.width / 2 - 60, canvas.height - 170));
+      enemies.splice(i, 1);
+      lives--;
+    }
+
+    // Colisão com bala
     bullets.forEach((b, j) => {
-      if (b.x > e.x && b.x < e.x + e.width && b.y < e.y + e.height) {
-        clearInterval(e.shootInterval);
+      if (b.x < e.x + e.width && b.x + b.width > e.x &&
+          b.y < e.y + e.height && b.y + b.height > e.y) {
+        explosions.push(new Explosion(e.x + e.width / 2 - 20, e.y + e.height / 2 - 20));
         enemies.splice(i, 1);
         bullets.splice(j, 1);
+        score += 10;
       }
     });
   });
 
-  enemyBullets.forEach((eb, i) => {
-    eb.update();
-    eb.draw();
-    if (
-      eb.x > player.x &&
-      eb.x < player.x + player.width &&
-      eb.y > player.y &&
-      eb.y < player.y + player.height
-    ) {
-      player.takeDamage(10);
-      enemyBullets.splice(i, 1);
-    }
-    if (eb.y > canvas.height) enemyBullets.splice(i, 1);
+  explosions.forEach((exp, i) => {
+    exp.update();
+    exp.draw();
+    if (!exp.isAlive()) explosions.splice(i, 1);
+  });
+
+  groundExplosions.forEach((exp, i) => {
+    exp.update();
+    exp.draw();
+    if (!exp.isAlive()) groundExplosions.splice(i, 1);
   });
 
   drawHUD();
 
-  if (player.hp <= 0) return endGame("lose");
-  const elapsed = Date.now() - startTime;
-  if (elapsed >= gameDuration) endGame("win");
+  if (lives <= 0) {
+    endGame();
+    drawGameOver();
+  }
 }
 
 function gameLoop() {
@@ -193,34 +228,31 @@ function gameLoop() {
   if (gameStarted) requestAnimationFrame(gameLoop);
 }
 
-function endGame(result) {
-  clearInterval(powerUpInterval);
-  enemies.forEach(e => clearInterval(e.shootInterval));
-  alert(result === "win" ? "Você venceu!" : "Game Over");
+function endGame() {
   gameStarted = false;
-}
-
-function addPowerUpAndEnemies() {
-  player.speed += 0.3;
-  spawnEnemyWave(3);
+  clearInterval(enemyInterval);
 }
 
 document.addEventListener('keydown', (e) => {
-  if (!gameStarted) return;
-  if (e.key === 'ArrowLeft' || e.key === 'a') player.move('left');
-  if (e.key === 'ArrowRight' || e.key === 'd') player.move('right');
-  if (e.key === ' ' || e.key === 'Spacebar') player.shoot();
+  keys[e.key.toLowerCase()] = true;
+  if ((e.key === ' ' || e.key === 'Spacebar') && gameStarted) player.shoot();
+});
+
+document.addEventListener('keyup', (e) => {
+  keys[e.key.toLowerCase()] = false;
 });
 
 document.getElementById('startButton').addEventListener('click', () => {
   if (gameStarted) return;
-  gameStarted = true;
   player = new Player();
   bullets = [];
   enemies = [];
-  enemyBullets = [];
-  startTime = Date.now();
-  spawnEnemyWave(5);
-  powerUpInterval = setInterval(addPowerUpAndEnemies, 60000);
+  explosions = [];
+  groundExplosions = [];
+  score = 0;
+  lives = 3;
+  gameStarted = true;
+  spawnEnemyWave(3);
+  enemyInterval = setInterval(() => spawnEnemyWave(4), 3000);
   gameLoop();
 });
