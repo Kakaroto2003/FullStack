@@ -1,258 +1,291 @@
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
+// Obtém o elemento canvas e seu contexto 2D
+const tela = document.getElementById('gameCanvas');
+const contexto = tela.getContext('2d');
 
-let player, bullets = [], enemies = [], explosions = [], groundExplosions = [];
-let score = 0, lives = 3;
-let gameStarted = false;
-let keys = {};
-let enemyInterval;
+// Declaração de variáveis principais
+let jogador, tiros = [], inimigos = [], explosoes = [], explosoesChao = [];
+let pontuacao = 0, vidas = 3;
+let jogoIniciado = false;
+let teclas = {};
+let intervaloInimigos;
 
-// Imagens
-const backgroundImage = new Image();
-backgroundImage.src = 'background.png';
+// Carrega as imagens usadas no jogo
+const imagemFundo = new Image();
+imagemFundo.src = 'background.png';
 
-const playerImage = new Image();
-playerImage.src = 'tanque.png';
+const imagemJogador = new Image();
+imagemJogador.src = 'tanque.png';
 
-const enemyImage = new Image();
-enemyImage.src = 'inimigo.png';
+const imagemInimigo = new Image();
+imagemInimigo.src = 'inimigo.png';
 
-const bulletImage = new Image();
-bulletImage.src = 'tiro.png';
+const imagemTiro = new Image();
+imagemTiro.src = 'tiro.png';
 
-const explosionImage = new Image();
-explosionImage.src = 'explosao.png';
+const imagemExplosao = new Image();
+imagemExplosao.src = 'explosao.png';
 
-const groundExplosionImage = new Image();
-groundExplosionImage.src = 'explosao2.png';
+const imagemExplosaoChao = new Image();
+imagemExplosaoChao.src = 'explosao2.png';
 
-class Player {
+// Classe que representa o jogador
+class Jogador {
   constructor() {
-    this.width = 125;
-    this.height = 125;
-    this.x = canvas.width / 2 - this.width / 2;
-    this.y = canvas.height - this.height - 20;
-    this.speed = 7;
-    this.canShoot = true;
+    // Define o tamanho e a posição inicial do jogador
+    this.largura = 125;
+    this.altura = 125;
+    this.x = tela.width / 2 - this.largura / 2;
+    this.y = tela.height - this.altura - 20;
+    this.velocidade = 7;
+    this.podeAtirar = true;
   }
 
-  move(direction) {
-    if (direction === 'left') this.x -= this.speed;
-    if (direction === 'right') this.x += this.speed;
-    this.x = Math.max(0, Math.min(canvas.width - this.width, this.x));
+  // Move o jogador para esquerda ou direita
+  mover(direcao) {
+    if (direcao === 'esquerda') this.x -= this.velocidade;
+    if (direcao === 'direita') this.x += this.velocidade;
+    // Garante que o jogador não saia da tela
+    this.x = Math.max(0, Math.min(tela.width - this.largura, this.x));
   }
 
-  shoot() {
-    if (this.canShoot) {
-      bullets.push(new Bullet(this.x + this.width / 2 - 15, this.y));
-      this.canShoot = false;
-      setTimeout(() => this.canShoot = true, 200);
+  // Cria um novo tiro se estiver habilitado
+  atirar() {
+    if (this.podeAtirar) {
+      tiros.push(new Tiro(this.x + this.largura / 2 - 15, this.y)); // Centraliza o tiro no jogador
+      this.podeAtirar = false; // Impede disparos contínuos
+      setTimeout(() => this.podeAtirar = true, 200); // Espera 200ms para permitir novo tiro
     }
   }
 
-  draw() {
-    ctx.drawImage(playerImage, this.x, this.y, this.width, this.height);
+  // Desenha o jogador na tela
+  desenhar() {
+    contexto.drawImage(imagemJogador, this.x, this.y, this.largura, this.altura);
   }
 }
 
-class Bullet {
+// Classe para representar os tiros
+class Tiro {
   constructor(x, y) {
     this.x = x;
     this.y = y;
-    this.width = 30;
-    this.height = 70;
-    this.speed = 12;
+    this.largura = 30;
+    this.altura = 70;
+    this.velocidade = 12;
   }
 
-  update() {
-    this.y -= this.speed;
+  // Move o tiro para cima
+  atualizar() {
+    this.y -= this.velocidade;
   }
 
-  draw() {
-    ctx.drawImage(bulletImage, this.x, this.y, this.width, this.height);
+  // Desenha o tiro na tela
+  desenhar() {
+    contexto.drawImage(imagemTiro, this.x, this.y, this.largura, this.altura);
   }
 }
 
-class Enemy {
+// Classe para os inimigos que descem na tela
+class Inimigo {
   constructor() {
-    this.width = 80;
-    this.height = 80;
-    this.x = Math.random() * (canvas.width - this.width);
-    this.y = -this.height;
-    this.speed = 1 + Math.random() * 1.5;
+    this.largura = 80;
+    this.altura = 80;
+    this.x = Math.random() * (tela.width - this.largura); // Posição aleatória no eixo X
+    this.y = -this.altura; // Começa fora da tela (parte de cima)
+    this.velocidade = 1 + Math.random() * 1.5; // Velocidade aleatória
   }
 
-  update() {
-    this.y += this.speed;
+  // Move o inimigo para baixo
+  atualizar() {
+    this.y += this.velocidade;
   }
 
-  draw() {
-    ctx.drawImage(enemyImage, this.x, this.y, this.width, this.height);
+  // Desenha o inimigo
+  desenhar() {
+    contexto.drawImage(imagemInimigo, this.x, this.y, this.largura, this.altura);
   }
 }
 
-class Explosion {
+// Classe para explosões quando o inimigo é atingido
+class Explosao {
   constructor(x, y) {
     this.x = x;
     this.y = y;
-    this.size = 100;
-    this.life = 50;
+    this.tamanho = 100;
+    this.vida = 50; // Tempo que a explosão permanece na tela
   }
 
-  update() {
-    this.life--;
+  atualizar() {
+    this.vida--;
   }
 
-  draw() {
-    ctx.drawImage(explosionImage, this.x, this.y, this.size, this.size);
+  desenhar() {
+    contexto.drawImage(imagemExplosao, this.x, this.y, this.tamanho, this.tamanho);
   }
 
-  isAlive() {
-    return this.life > 0;
+  estaViva() {
+    return this.vida > 0;
   }
 }
 
-class GroundExplosion {
+// Classe para explosões no chão (quando inimigo chega ao fim)
+class ExplosaoChao {
   constructor(x, y) {
     this.x = x;
     this.y = y;
-    this.size = 150;
-    this.life = 75;
+    this.tamanho = 150;
+    this.vida = 75;
   }
 
-  update() {
-    this.life--;
+  atualizar() {
+    this.vida--;
   }
 
-  draw() {
-    ctx.drawImage(groundExplosionImage, this.x, this.y, this.size, this.size);
+  desenhar() {
+    contexto.drawImage(imagemExplosaoChao, this.x, this.y, this.tamanho, this.tamanho);
   }
 
-  isAlive() {
-    return this.life > 0;
-  }
-}
-
-function spawnEnemyWave(count = 4) {
-  for (let i = 0; i < count; i++) {
-    enemies.push(new Enemy());
+  estaViva() {
+    return this.vida > 0;
   }
 }
 
-function drawHUD() {
-  ctx.fillStyle = '#fff';
-  ctx.font = '16px "Press Start 2P", Arial';
-  ctx.textAlign = 'left';
-  ctx.fillText(`Score: ${score}`, 20, 30);
-  ctx.textAlign = 'right';
-  ctx.fillText(`Vidas: ${lives}`, canvas.width - 20, 30);
-  ctx.textAlign = 'start';
+// Cria inimigos em "ondas"
+function gerarOndaInimigos(quantidade = 4) {
+  for (let i = 0; i < quantidade; i++) {
+    inimigos.push(new Inimigo());
+  }
 }
 
-function drawGameOver() {
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = '#ff4444';
-  ctx.font = '32px "Press Start 2P", Arial';
-  ctx.textAlign = 'center';
-  ctx.fillText('GAME OVER', canvas.width / 2, canvas.height / 2 - 20);
-  ctx.fillStyle = '#fff';
-  ctx.font = '16px "Press Start 2P", Arial';
-  ctx.fillText(`Pontuação: ${score}`, canvas.width / 2, canvas.height / 2 + 10);
-    ctx.fillText('Pressione START ou [ESPAÇO] para jogar!', canvas.width / 2, canvas.height / 2 + 40);
-  ctx.textAlign = 'start';
+// Desenha pontuação e vidas na tela
+function desenharInterface() {
+  contexto.fillStyle = '#fff';
+  contexto.font = '16px "Press Start 2P", Arial';
+  contexto.textAlign = 'left';
+  contexto.fillText(`Pontuação: ${pontuacao}`, 20, 30);
+  contexto.textAlign = 'right';
+  contexto.fillText(`Vidas: ${vidas}`, tela.width - 20, 30);
+  contexto.textAlign = 'start';
 }
 
-function update() {
-  if (!gameStarted) return;
+// Desenha a tela de fim de jogo
+function desenharGameOver() {
+  contexto.fillStyle = 'rgba(0, 0, 0, 0.7)';
+  contexto.fillRect(0, 0, tela.width, tela.height);
+  contexto.fillStyle = '#ff4444';
+  contexto.font = '32px "Press Start 2P", Arial';
+  contexto.textAlign = 'center';
+  contexto.fillText('FIM DE JOGO', tela.width / 2, tela.height / 2 - 20);
+  contexto.fillStyle = '#fff';
+  contexto.font = '16px "Press Start 2P", Arial';
+  contexto.fillText(`Pontuação: ${pontuacao}`, tela.width / 2, tela.height / 2 + 10);
+  contexto.fillText('Pressione START ou [ESPAÇO] para jogar!', tela.width / 2, tela.height / 2 + 40);
+  contexto.textAlign = 'start';
+}
 
-  // Movimento
-  if (keys['arrowleft'] || keys['a']) player.move('left');
-  if (keys['arrowright'] || keys['d']) player.move('right');
+// Função principal que atualiza o jogo
+function atualizar() {
+  if (!jogoIniciado) return;
 
-  // Fundo
-  ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
+  // Controla o movimento do jogador pelas teclas
+  if (teclas['arrowleft'] || teclas['a']) jogador.mover('esquerda');
+  if (teclas['arrowright'] || teclas['d']) jogador.mover('direita');
 
-  player.draw();
+  // Desenha o fundo
+  contexto.drawImage(imagemFundo, 0, 0, tela.width, tela.height);
 
-  bullets.forEach((b) => {
-    b.update();
-    b.draw();
+  // Desenha o jogador
+  jogador.desenhar();
+
+  // Atualiza e desenha cada tiro
+  tiros.forEach((t) => {
+    t.atualizar();
+    t.desenhar();
   });
 
-  enemies.forEach((e, i) => {
-    e.update();
-    e.draw();
+  // Atualiza inimigos e detecta colisões com tiros ou chegada no chão
+  inimigos.forEach((i, idx) => {
+    i.atualizar();
+    i.desenhar();
 
-    // Quando inimigo atinge o chão
-    if (e.y + e.height > canvas.height - 20) {
-      groundExplosions.push(new GroundExplosion(e.x + e.width / 2 - 60, canvas.height - 170));
-      enemies.splice(i, 1);
-      lives--;
+    // Se o inimigo passar da tela (chegou ao chão)
+    if (i.y + i.altura > tela.height - 20) {
+      explosoesChao.push(new ExplosaoChao(i.x + i.largura / 2 - 60, tela.height - 170));
+      inimigos.splice(idx, 1);
+      vidas--;
     }
 
-    // Colisão com bala
-    bullets.forEach((b, j) => {
-      if (b.x < e.x + e.width && b.x + b.width > e.x &&
-          b.y < e.y + e.height && b.y + b.height > e.y) {
-        explosions.push(new Explosion(e.x + e.width / 2 - 20, e.y + e.height / 2 - 20));
-        enemies.splice(i, 1);
-        bullets.splice(j, 1);
-        score += 10;
+    // Verifica colisão com tiros
+    tiros.forEach((t, jdx) => {
+      if (t.x < i.x + i.largura && t.x + t.largura > i.x &&
+          t.y < i.y + i.altura && t.y + t.altura > i.y) {
+        explosoes.push(new Explosao(i.x + i.largura / 2 - 20, i.y + i.altura / 2 - 20));
+        inimigos.splice(idx, 1);
+        tiros.splice(jdx, 1);
+        pontuacao += 10;
       }
     });
   });
 
-  explosions.forEach((exp, i) => {
-    exp.update();
-    exp.draw();
-    if (!exp.isAlive()) explosions.splice(i, 1);
+  // Atualiza as explosões
+  explosoes.forEach((e, idx) => {
+    e.atualizar();
+    e.desenhar();
+    if (!e.estaViva()) explosoes.splice(idx, 1);
   });
 
-  groundExplosions.forEach((exp, i) => {
-    exp.update();
-    exp.draw();
-    if (!exp.isAlive()) groundExplosions.splice(i, 1);
+  // Atualiza explosões do chão
+  explosoesChao.forEach((e, idx) => {
+    e.atualizar();
+    e.desenhar();
+    if (!e.estaViva()) explosoesChao.splice(idx, 1);
   });
 
-  drawHUD();
+  // Desenha a interface
+  desenharInterface();
 
-  if (lives <= 0) {
-    endGame();
-    drawGameOver();
+  // Verifica se o jogo acabou
+  if (vidas <= 0) {
+    finalizarJogo();
+    desenharGameOver();
   }
 }
 
-function gameLoop() {
-  update();
-  if (gameStarted) requestAnimationFrame(gameLoop);
+// Função principal que mantém o jogo rodando em loop
+function loopDoJogo() {
+  atualizar(); // Atualiza a lógica e os desenhos
+  if (jogoIniciado) requestAnimationFrame(loopDoJogo); // Continua o loop se o jogo não tiver acabado
 }
 
-function endGame() {
-  gameStarted = false;
-  clearInterval(enemyInterval);
+// Para o jogo
+function finalizarJogo() {
+  jogoIniciado = false;
+  clearInterval(intervaloInimigos); // Para de gerar inimigos
 }
 
+// Captura teclas pressionadas
 document.addEventListener('keydown', (e) => {
-  keys[e.key.toLowerCase()] = true;
-  if ((e.key === ' ' || e.key === 'Spacebar') && gameStarted) player.shoot();
+  teclas[e.key.toLowerCase()] = true;
+  // Se pressionar espaço durante o jogo, atira
+  if ((e.key === ' ' || e.key === 'Spacebar') && jogoIniciado) jogador.atirar();
 });
 
+// Remove teclas soltas
 document.addEventListener('keyup', (e) => {
-  keys[e.key.toLowerCase()] = false;
+  teclas[e.key.toLowerCase()] = false;
 });
 
+// Inicia o jogo ao clicar no botão "start"
 document.getElementById('startButton').addEventListener('click', () => {
-  if (gameStarted) return;
-  player = new Player();
-  bullets = [];
-  enemies = [];
-  explosions = [];
-  groundExplosions = [];
-  score = 0;
-  lives = 3;
-  gameStarted = true;
-  spawnEnemyWave(3);
-  enemyInterval = setInterval(() => spawnEnemyWave(4), 3000);
-  gameLoop();
+  if (jogoIniciado) return; // Impede iniciar várias vezes
+  jogador = new Jogador();
+  tiros = [];
+  inimigos = [];
+  explosoes = [];
+  explosoesChao = [];
+  pontuacao = 0;
+  vidas = 3;
+  jogoIniciado = true;
+  gerarOndaInimigos(3); // Primeira onda
+  intervaloInimigos = setInterval(() => gerarOndaInimigos(4), 3000); // Novas ondas a cada 3 segundos
+  loopDoJogo(); // Inicia o loop do jogo
 });
