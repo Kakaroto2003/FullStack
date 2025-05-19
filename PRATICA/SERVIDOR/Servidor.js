@@ -20,6 +20,7 @@ MongoClient.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(client => {
     const db = client.db("exemplo_bd");
     const usuarios = db.collection("usuarios");
+    const posts = db.collection("posts");
 
     // Rota inicial
     app.get('/', (req, res) => {
@@ -34,15 +35,32 @@ MongoClient.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
       res.redirect('LAB/LAB_8 - GET_POST_TEMPLATE/login.html');
     });
 
-    // Cadastrar usuário (GET via querystring)
+    // Página para cadastrar novo post
     app.get('/cadastrar', (req, res) => {
-      const { nome, email, senha, nascimento } = req.query;
-      console.log(nome, email, senha, nascimento);
+      res.sendFile(__dirname + '/public/cadastrar_post.html');
+    });
 
-      res.render('resposta.ejs', {
-        mensagem: "Usuário cadastrado com sucesso!",
-        usuario: nome,
-        login: email
+    // Salvar novo post
+    app.post('/cadastrar', (req, res) => {
+      const { titulo, resumo, conteudo } = req.body;
+      const novoPost = { titulo, resumo, conteudo, criado_em: new Date() };
+
+      posts.insertOne(novoPost, (err) => {
+        if (err) {
+          res.send("Erro ao salvar o post.");
+        } else {
+          res.redirect('/blog');
+        }
+      });
+    });
+
+    // Exibir posts do blog
+    app.get('/blog', (req, res) => {
+      posts.find().toArray((err, resultados) => {
+        if (err) {
+          return res.send('Erro ao carregar posts.');
+        }
+        res.render('blog.ejs', { posts: resultados });
       });
     });
 
@@ -72,7 +90,7 @@ MongoClient.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
     app.post('/login', function(requisicao, resposta){
         let email = requisicao.body.email;
         let senha = requisicao.body.senha;
-    
+
         let data = {db_email: email, db_senha: senha};
         usuarios.find(data).toArray(function(err, items){
             if (items.length == 0) {
@@ -84,7 +102,6 @@ MongoClient.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
             }
         });
     });
-    
 
     // Atualizar usuário
     app.post('/atualizar_usuario', (req, res) => {
@@ -132,4 +149,5 @@ MongoClient.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
   .catch(err => {
     console.error("Erro ao conectar ao MongoDB:", err);
   });
+
 

@@ -1,0 +1,15 @@
+<body>
+    <h1>Bem-vindo ao Blog!</h1>
+    <a href="/cadastrar">Criar novo post</a>
+    <div id="posts">
+      <% posts.forEach(function(post) { %>
+        <article>
+          <h2><%= post.titulo %></h2>
+          <p><strong><%= post.resumo %></strong></p>
+          <p><%= post.conteudo %></p>
+          <hr>
+        </article>
+      <% }) %>
+    </div>
+  </body>
+  
