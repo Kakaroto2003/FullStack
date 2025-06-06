@@ -11,6 +11,17 @@ let teclas = {};
 let intervaloInimigos = null;
 let loopRodando = false;
 
+const imagemPause = new Image();
+imagemPause.src = 'imagens/pause.png';
+
+const botaoPause = {
+  x: 20,
+  y: 50,
+  largura: 50,
+  altura: 50,
+  imagem: imagemPause,
+};
+
 // Carrega as imagens usadas no jogo
 const imagemCoracao = new Image();
 imagemCoracao.src = 'imagens/coracao.png';
@@ -33,7 +44,6 @@ imagemExplosao.src = 'imagens/explosao.png';
 const imagemExplosaoChao = new Image();
 imagemExplosaoChao.src = 'imagens/explosao2.png';
 
-// Classe que representa o jogador
 class Jogador {
   constructor() {
     this.largura = 150;
@@ -63,7 +73,6 @@ class Jogador {
   }
 }
 
-// Classe para representar os tiros
 class Tiro {
   constructor(x, y) {
     this.x = x;
@@ -82,7 +91,6 @@ class Tiro {
   }
 }
 
-// Classe para os inimigos
 class Inimigo {
   constructor() {
     this.largura = 70;
@@ -101,7 +109,6 @@ class Inimigo {
   }
 }
 
-// Classe para explosões
 class Explosao {
   constructor(x, y) {
     this.x = x;
@@ -123,7 +130,6 @@ class Explosao {
   }
 }
 
-// Classe para explosões no chão
 class ExplosaoChao {
   constructor(x, y) {
     this.x = x;
@@ -145,14 +151,12 @@ class ExplosaoChao {
   }
 }
 
-// Cria inimigos em "ondas"
 function gerarOndaInimigos(quantidade = 4) {
   for (let i = 0; i < quantidade; i++) {
     inimigos.push(new Inimigo());
   }
 }
 
-// Desenha pontuação e vidas (corações à direita)
 function desenharInterface() {
   contexto.fillStyle = '#fff';
   contexto.font = '16px "Press Start 2P", Arial';
@@ -162,9 +166,10 @@ function desenharInterface() {
   for (let i = 0; i < vidas; i++) {
     contexto.drawImage(imagemCoracao, tela.width - 40 - i * 40, 10, 30, 30);
   }
+
+  contexto.drawImage(botaoPause.imagem, botaoPause.x, botaoPause.y, botaoPause.largura, botaoPause.altura);
 }
 
-// Tela de fim de jogo
 function desenharGameOver() {
   contexto.fillStyle = 'rgba(0, 0, 0, 0.7)';
   contexto.fillRect(0, 0, tela.width, tela.height);
@@ -179,9 +184,27 @@ function desenharGameOver() {
   contexto.textAlign = 'start';
 }
 
-// Atualiza o jogo
+function desenharPausa() {
+  contexto.fillStyle = 'rgba(0, 0, 0, 0.7)';
+  contexto.fillRect(0, 0, tela.width, tela.height);
+  contexto.fillStyle = '#ffff00';
+  contexto.font = '28px "Press Start 2P", Arial';
+  contexto.textAlign = 'center';
+  contexto.fillText('JOGO PAUSADO', tela.width / 2, tela.height / 2 - 20);
+  contexto.fillStyle = '#ffffff';
+  contexto.font = '14px "Press Start 2P", Arial';
+  contexto.fillText('Pressione [ESPAÇO] para continuar', tela.width / 2, tela.height / 2 + 20);
+  contexto.textAlign = 'start';
+}
+
 function atualizar() {
-  if (!jogoIniciado || jogoPausado) return;
+  if (!jogoIniciado) return;
+  if (jogoPausado) {
+    contexto.drawImage(imagemFundo, 0, 0, tela.width, tela.height);
+    desenharInterface();
+    desenharPausa();
+    return;
+  }
 
   if (teclas['arrowleft'] || teclas['a']) jogador.mover('esquerda');
   if (teclas['arrowright'] || teclas['d']) jogador.mover('direita');
@@ -192,7 +215,6 @@ function atualizar() {
   tiros.forEach((t, i) => {
     t.atualizar();
     t.desenhar();
-    // Remove tiros que saíram da tela
     if (t.y + t.altura < 0) tiros.splice(i, 1);
   });
 
@@ -217,16 +239,16 @@ function atualizar() {
     });
   });
 
-  explosoes.forEach((e, idx) => {
+  explosoes = explosoes.filter(e => {
     e.atualizar();
     e.desenhar();
-    if (!e.estaViva()) explosoes.splice(idx, 1);
+    return e.estaViva();
   });
 
-  explosoesChao.forEach((e, idx) => {
+  explosoesChao = explosoesChao.filter(e => {
     e.atualizar();
     e.desenhar();
-    if (!e.estaViva()) explosoesChao.splice(idx, 1);
+    return e.estaViva();
   });
 
   desenharInterface();
@@ -237,7 +259,6 @@ function atualizar() {
   }
 }
 
-// Loop do jogo (com controle para rodar só um loop)
 function loopDoJogo() {
   if (!jogoIniciado) {
     loopRodando = false;
@@ -248,14 +269,11 @@ function loopDoJogo() {
   requestAnimationFrame(loopDoJogo);
 }
 
-// Funções para iniciar e parar intervalo de inimigos
 function iniciarIntervaloInimigos() {
-  if (intervaloInimigos) return; // evita múltiplos intervalos
+  if (intervaloInimigos) return;
   intervaloInimigos = setInterval(() => {
-    if (!jogoPausado && jogoIniciado) {
-      gerarOndaInimigos(4);
-    }
-  }, 3500); // 3,5 segundos entre ondas, ajuste o tempo aqui
+    if (!jogoPausado && jogoIniciado) gerarOndaInimigos(4);
+  }, 3500);
 }
 
 function pararIntervaloInimigos() {
@@ -263,23 +281,49 @@ function pararIntervaloInimigos() {
   intervaloInimigos = null;
 }
 
-// Finaliza o jogo
 function finalizarJogo() {
   jogoIniciado = false;
   pararIntervaloInimigos();
 }
 
-// Eventos de teclado
 document.addEventListener('keydown', (e) => {
   teclas[e.key.toLowerCase()] = true;
-  if ((e.key === ' ' || e.key === 'Spacebar') && jogoIniciado) jogador.atirar();
+
+  if (e.key === ' ' || e.key === 'Spacebar') {
+    if (jogoIniciado && jogoPausado) {
+      jogoPausado = false;
+      iniciarIntervaloInimigos();
+      if (!loopRodando) loopDoJogo();
+    } else if (jogoIniciado) {
+      jogador.atirar();
+    }
+  }
 });
 
 document.addEventListener('keyup', (e) => {
   teclas[e.key.toLowerCase()] = false;
 });
 
-// Inicia o jogo ao clicar no botão
+tela.addEventListener('click', (e) => {
+  const rect = tela.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+
+  if (
+    x >= botaoPause.x &&
+    x <= botaoPause.x + botaoPause.largura &&
+    y >= botaoPause.y &&
+    y <= botaoPause.y + botaoPause.altura
+  ) {
+    jogoPausado = !jogoPausado;
+    if (jogoPausado) pararIntervaloInimigos();
+    else {
+      iniciarIntervaloInimigos();
+      if (!loopRodando) loopDoJogo();
+    }
+  }
+});
+
 document.getElementById('startButton').addEventListener('click', () => {
   if (jogoIniciado) return;
   jogador = new Jogador();
@@ -296,7 +340,6 @@ document.getElementById('startButton').addEventListener('click', () => {
   if (!loopRodando) loopDoJogo();
 });
 
-// Pausa e retoma na troca de aba
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) {
     jogoPausado = true;
