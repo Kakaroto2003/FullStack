@@ -10,6 +10,9 @@ let teclas = {};
 let intervaloInimigos;
 
 // Carrega as imagens usadas no jogo
+const imagemCoracao = new Image();
+imagemCoracao.src = 'imagens/coracao.png';
+
 const imagemFundo = new Image();
 imagemFundo.src = 'imagens/background_rd.png';
 
@@ -156,16 +159,19 @@ function gerarOndaInimigos(quantidade = 4) {
   }
 }
 
-// Desenha pontuação e vidas na tela
+// Desenha pontuação
 function desenharInterface() {
   contexto.fillStyle = '#fff';
   contexto.font = '16px "Press Start 2P", Arial';
   contexto.textAlign = 'left';
   contexto.fillText(`Pontuação: ${pontuacao}`, 20, 30);
-  contexto.textAlign = 'right';
-  contexto.fillText(`Vidas: ${vidas}`, tela.width - 20, 30);
-  contexto.textAlign = 'start';
+
+  // Desenha os corações representando as vidas
+  for (let i = 0; i < vidas; i++) {
+    contexto.drawImage(imagemCoracao, tela.width - 40 - i * 40, 10, 30, 30);
+  }
 }
+
 
 // Desenha a tela de fim de jogo
 function desenharGameOver() {
@@ -221,7 +227,7 @@ function atualizar() {
         explosoes.push(new Explosao(i.x + i.largura / 2 - 20, i.y + i.altura / 2 - 20));
         inimigos.splice(idx, 1);
         tiros.splice(jdx, 1);
-        pontuacao += 10;
+        pontuacao += 100;
       }
     });
   });
