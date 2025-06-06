@@ -11,29 +11,29 @@ let intervaloInimigos;
 
 // Carrega as imagens usadas no jogo
 const imagemFundo = new Image();
-imagemFundo.src = 'background.png';
+imagemFundo.src = 'imagens/background_rd.png';
 
 const imagemJogador = new Image();
-imagemJogador.src = 'tanque.png';
+imagemJogador.src = 'imagens/tanque.png';
 
 const imagemInimigo = new Image();
-imagemInimigo.src = 'inimigo.png';
+imagemInimigo.src = 'imagens/inimigo.png';
 
 const imagemTiro = new Image();
-imagemTiro.src = 'tiro.png';
+imagemTiro.src = 'imagens/tiro.png';
 
 const imagemExplosao = new Image();
-imagemExplosao.src = 'explosao.png';
+imagemExplosao.src = 'imagens/explosao.png';
 
 const imagemExplosaoChao = new Image();
-imagemExplosaoChao.src = 'explosao2.png';
+imagemExplosaoChao.src = 'imagens/explosao2.png';
 
 // Classe que representa o jogador
 class Jogador {
   constructor() {
     // Define o tamanho e a posição inicial do jogador
-    this.largura = 125;
-    this.altura = 125;
+    this.largura = 150;
+    this.altura = 150;
     this.x = tela.width / 2 - this.largura / 2;
     this.y = tela.height - this.altura - 20;
     this.velocidade = 7;
@@ -87,8 +87,8 @@ class Tiro {
 // Classe para os inimigos que descem na tela
 class Inimigo {
   constructor() {
-    this.largura = 80;
-    this.altura = 80;
+    this.largura = 70;
+    this.altura = 70;
     this.x = Math.random() * (tela.width - this.largura); // Posição aleatória no eixo X
     this.y = -this.altura; // Começa fora da tela (parte de cima)
     this.velocidade = 1 + Math.random() * 1.5; // Velocidade aleatória
