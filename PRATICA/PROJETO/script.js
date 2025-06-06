@@ -6,8 +6,10 @@ const contexto = tela.getContext('2d');
 let jogador, tiros = [], inimigos = [], explosoes = [], explosoesChao = [];
 let pontuacao = 0, vidas = 3;
 let jogoIniciado = false;
+let jogoPausado = false;
 let teclas = {};
-let intervaloInimigos;
+let intervaloInimigos = null;
+let loopRodando = false;
 
 // Carrega as imagens usadas no jogo
 const imagemCoracao = new Image();
@@ -34,7 +36,6 @@ imagemExplosaoChao.src = 'imagens/explosao2.png';
 // Classe que representa o jogador
 class Jogador {
   constructor() {
-    // Define o tamanho e a posição inicial do jogador
     this.largura = 150;
     this.altura = 150;
     this.x = tela.width / 2 - this.largura / 2;
@@ -43,24 +44,20 @@ class Jogador {
     this.podeAtirar = true;
   }
 
-  // Move o jogador para esquerda ou direita
   mover(direcao) {
     if (direcao === 'esquerda') this.x -= this.velocidade;
     if (direcao === 'direita') this.x += this.velocidade;
-    // Garante que o jogador não saia da tela
     this.x = Math.max(0, Math.min(tela.width - this.largura, this.x));
   }
 
-  // Cria um novo tiro se estiver habilitado
   atirar() {
     if (this.podeAtirar) {
-      tiros.push(new Tiro(this.x + this.largura / 2 - 15, this.y)); // Centraliza o tiro no jogador
-      this.podeAtirar = false; // Impede disparos contínuos
-      setTimeout(() => this.podeAtirar = true, 200); // Espera 200ms para permitir novo tiro
+      tiros.push(new Tiro(this.x + this.largura / 2 - 15, this.y));
+      this.podeAtirar = false;
+      setTimeout(() => this.podeAtirar = true, 200);
     }
   }
 
-  // Desenha o jogador na tela
   desenhar() {
     contexto.drawImage(imagemJogador, this.x, this.y, this.largura, this.altura);
   }
@@ -76,45 +73,41 @@ class Tiro {
     this.velocidade = 12;
   }
 
-  // Move o tiro para cima
   atualizar() {
     this.y -= this.velocidade;
   }
 
-  // Desenha o tiro na tela
   desenhar() {
     contexto.drawImage(imagemTiro, this.x, this.y, this.largura, this.altura);
   }
 }
 
-// Classe para os inimigos que descem na tela
+// Classe para os inimigos
 class Inimigo {
   constructor() {
     this.largura = 70;
     this.altura = 70;
-    this.x = Math.random() * (tela.width - this.largura); // Posição aleatória no eixo X
-    this.y = -this.altura; // Começa fora da tela (parte de cima)
-    this.velocidade = 1 + Math.random() * 1.5; // Velocidade aleatória
+    this.x = Math.random() * (tela.width - this.largura);
+    this.y = -this.altura;
+    this.velocidade = 1 + Math.random() * 1.5;
   }
 
-  // Move o inimigo para baixo
   atualizar() {
     this.y += this.velocidade;
   }
 
-  // Desenha o inimigo
   desenhar() {
     contexto.drawImage(imagemInimigo, this.x, this.y, this.largura, this.altura);
   }
 }
 
-// Classe para explosões quando o inimigo é atingido
+// Classe para explosões
 class Explosao {
   constructor(x, y) {
     this.x = x;
     this.y = y;
     this.tamanho = 100;
-    this.vida = 50; // Tempo que a explosão permanece na tela
+    this.vida = 50;
   }
 
   atualizar() {
@@ -130,7 +123,7 @@ class Explosao {
   }
 }
 
-// Classe para explosões no chão (quando inimigo chega ao fim)
+// Classe para explosões no chão
 class ExplosaoChao {
   constructor(x, y) {
     this.x = x;
@@ -159,21 +152,19 @@ function gerarOndaInimigos(quantidade = 4) {
   }
 }
 
-// Desenha pontuação
+// Desenha pontuação e vidas (corações à direita)
 function desenharInterface() {
   contexto.fillStyle = '#fff';
   contexto.font = '16px "Press Start 2P", Arial';
   contexto.textAlign = 'left';
   contexto.fillText(`Pontuação: ${pontuacao}`, 20, 30);
 
-  // Desenha os corações representando as vidas
   for (let i = 0; i < vidas; i++) {
     contexto.drawImage(imagemCoracao, tela.width - 40 - i * 40, 10, 30, 30);
   }
 }
 
-
-// Desenha a tela de fim de jogo
+// Tela de fim de jogo
 function desenharGameOver() {
   contexto.fillStyle = 'rgba(0, 0, 0, 0.7)';
   contexto.fillRect(0, 0, tela.width, tela.height);
@@ -188,39 +179,33 @@ function desenharGameOver() {
   contexto.textAlign = 'start';
 }
 
-// Função principal que atualiza o jogo
+// Atualiza o jogo
 function atualizar() {
-  if (!jogoIniciado) return;
+  if (!jogoIniciado || jogoPausado) return;
 
-  // Controla o movimento do jogador pelas teclas
   if (teclas['arrowleft'] || teclas['a']) jogador.mover('esquerda');
   if (teclas['arrowright'] || teclas['d']) jogador.mover('direita');
 
-  // Desenha o fundo
   contexto.drawImage(imagemFundo, 0, 0, tela.width, tela.height);
-
-  // Desenha o jogador
   jogador.desenhar();
 
-  // Atualiza e desenha cada tiro
-  tiros.forEach((t) => {
+  tiros.forEach((t, i) => {
     t.atualizar();
     t.desenhar();
+    // Remove tiros que saíram da tela
+    if (t.y + t.altura < 0) tiros.splice(i, 1);
   });
 
-  // Atualiza inimigos e detecta colisões com tiros ou chegada no chão
   inimigos.forEach((i, idx) => {
     i.atualizar();
     i.desenhar();
 
-    // Se o inimigo passar da tela (chegou ao chão)
     if (i.y + i.altura > tela.height - 20) {
       explosoesChao.push(new ExplosaoChao(i.x + i.largura / 2 - 60, tela.height - 170));
       inimigos.splice(idx, 1);
       vidas--;
     }
 
-    // Verifica colisão com tiros
     tiros.forEach((t, jdx) => {
       if (t.x < i.x + i.largura && t.x + t.largura > i.x &&
           t.y < i.y + i.altura && t.y + t.altura > i.y) {
@@ -232,57 +217,71 @@ function atualizar() {
     });
   });
 
-  // Atualiza as explosões
   explosoes.forEach((e, idx) => {
     e.atualizar();
     e.desenhar();
     if (!e.estaViva()) explosoes.splice(idx, 1);
   });
 
-  // Atualiza explosões do chão
   explosoesChao.forEach((e, idx) => {
     e.atualizar();
     e.desenhar();
     if (!e.estaViva()) explosoesChao.splice(idx, 1);
   });
 
-  // Desenha a interface
   desenharInterface();
 
-  // Verifica se o jogo acabou
   if (vidas <= 0) {
     finalizarJogo();
     desenharGameOver();
   }
 }
 
-// Função principal que mantém o jogo rodando em loop
+// Loop do jogo (com controle para rodar só um loop)
 function loopDoJogo() {
-  atualizar(); // Atualiza a lógica e os desenhos
-  if (jogoIniciado) requestAnimationFrame(loopDoJogo); // Continua o loop se o jogo não tiver acabado
+  if (!jogoIniciado) {
+    loopRodando = false;
+    return;
+  }
+  loopRodando = true;
+  atualizar();
+  requestAnimationFrame(loopDoJogo);
 }
 
-// Para o jogo
+// Funções para iniciar e parar intervalo de inimigos
+function iniciarIntervaloInimigos() {
+  if (intervaloInimigos) return; // evita múltiplos intervalos
+  intervaloInimigos = setInterval(() => {
+    if (!jogoPausado && jogoIniciado) {
+      gerarOndaInimigos(4);
+    }
+  }, 3500); // 3,5 segundos entre ondas, ajuste o tempo aqui
+}
+
+function pararIntervaloInimigos() {
+  clearInterval(intervaloInimigos);
+  intervaloInimigos = null;
+}
+
+// Finaliza o jogo
 function finalizarJogo() {
   jogoIniciado = false;
-  clearInterval(intervaloInimigos); // Para de gerar inimigos
+  pararIntervaloInimigos();
 }
 
-// Captura teclas pressionadas
+// Eventos de teclado
 document.addEventListener('keydown', (e) => {
   teclas[e.key.toLowerCase()] = true;
-  // Se pressionar espaço durante o jogo, atira
   if ((e.key === ' ' || e.key === 'Spacebar') && jogoIniciado) jogador.atirar();
 });
 
-// Remove teclas soltas
 document.addEventListener('keyup', (e) => {
   teclas[e.key.toLowerCase()] = false;
 });
 
-// Inicia o jogo ao clicar no botão "start"
+// Inicia o jogo ao clicar no botão
 document.getElementById('startButton').addEventListener('click', () => {
-  if (jogoIniciado) return; // Impede iniciar várias vezes
+  if (jogoIniciado) return;
   jogador = new Jogador();
   tiros = [];
   inimigos = [];
@@ -291,7 +290,20 @@ document.getElementById('startButton').addEventListener('click', () => {
   pontuacao = 0;
   vidas = 3;
   jogoIniciado = true;
-  gerarOndaInimigos(3); // Primeira onda
-  intervaloInimigos = setInterval(() => gerarOndaInimigos(4), 3000); // Novas ondas a cada 3 segundos
-  loopDoJogo(); // Inicia o loop do jogo
+  jogoPausado = false;
+  gerarOndaInimigos(3);
+  iniciarIntervaloInimigos();
+  if (!loopRodando) loopDoJogo();
+});
+
+// Pausa e retoma na troca de aba
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    jogoPausado = true;
+    pararIntervaloInimigos();
+  } else {
+    jogoPausado = false;
+    iniciarIntervaloInimigos();
+    if (!loopRodando) loopDoJogo();
+  }
 });
