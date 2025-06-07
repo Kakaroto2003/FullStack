@@ -199,9 +199,36 @@ function desenharPausa() {
 
 function atualizar() {
   if (!jogoIniciado) return;
+
+  contexto.drawImage(imagemFundo, 0, 0, tela.width, tela.height);
+  jogador.desenhar();
+
+  tiros.forEach((t, i) => {
+    if (!jogoPausado) t.atualizar();
+    t.desenhar();
+    if (t.y + t.altura < 0) tiros.splice(i, 1);
+  });
+
+  inimigos.forEach((i) => {
+    if (!jogoPausado) i.atualizar();
+    i.desenhar();
+  });
+
+  explosoes = explosoes.filter(e => {
+    if (!jogoPausado) e.atualizar();
+    e.desenhar();
+    return e.estaViva();
+  });
+
+  explosoesChao = explosoesChao.filter(e => {
+    if (!jogoPausado) e.atualizar();
+    e.desenhar();
+    return e.estaViva();
+  });
+
+  desenharInterface();
+
   if (jogoPausado) {
-    contexto.drawImage(imagemFundo, 0, 0, tela.width, tela.height);
-    desenharInterface();
     desenharPausa();
     return;
   }
@@ -209,19 +236,8 @@ function atualizar() {
   if (teclas['arrowleft'] || teclas['a']) jogador.mover('esquerda');
   if (teclas['arrowright'] || teclas['d']) jogador.mover('direita');
 
-  contexto.drawImage(imagemFundo, 0, 0, tela.width, tela.height);
-  jogador.desenhar();
-
-  tiros.forEach((t, i) => {
-    t.atualizar();
-    t.desenhar();
-    if (t.y + t.altura < 0) tiros.splice(i, 1);
-  });
-
+  // Colisões e pontuação só atualizam se o jogo não estiver pausado
   inimigos.forEach((i, idx) => {
-    i.atualizar();
-    i.desenhar();
-
     if (i.y + i.altura > tela.height - 20) {
       explosoesChao.push(new ExplosaoChao(i.x + i.largura / 2 - 60, tela.height - 170));
       inimigos.splice(idx, 1);
@@ -238,20 +254,6 @@ function atualizar() {
       }
     });
   });
-
-  explosoes = explosoes.filter(e => {
-    e.atualizar();
-    e.desenhar();
-    return e.estaViva();
-  });
-
-  explosoesChao = explosoesChao.filter(e => {
-    e.atualizar();
-    e.desenhar();
-    return e.estaViva();
-  });
-
-  desenharInterface();
 
   if (vidas <= 0) {
     finalizarJogo();
@@ -317,10 +319,7 @@ tela.addEventListener('click', (e) => {
   ) {
     jogoPausado = !jogoPausado;
     if (jogoPausado) pararIntervaloInimigos();
-    else {
-      iniciarIntervaloInimigos();
-      if (!loopRodando) loopDoJogo();
-    }
+    atualizar();
   }
 });
 
@@ -341,12 +340,13 @@ document.getElementById('startButton').addEventListener('click', () => {
 });
 
 document.addEventListener('visibilitychange', () => {
-  if (document.hidden) {
-    jogoPausado = true;
-    pararIntervaloInimigos();
-  } else {
-    jogoPausado = false;
-    iniciarIntervaloInimigos();
-    if (!loopRodando) loopDoJogo();
+  if (jogoIniciado) {
+    if (document.hidden) {
+      jogoPausado = true;
+      pararIntervaloInimigos();
+      atualizar(); // desenha a tela de pause
+    } else {
+      atualizar(); // só redesenha, não despausa
+    }
   }
 });
